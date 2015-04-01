@@ -341,7 +341,7 @@ public class EFT4 extends Applet
             g.drawString("Average time (ms): " + Long.toString(total / testsValue), 110, 120);
             g.drawString("Click count per test: " + Integer.toString(clickCounter), 110, 138);
             scoreStr = "Time(ms): " + Long.toString(total / testsValue) +"    Clicks: "+ Integer.toString(clickCounter);
-            while(scores.length > 0 && testcount <=MAXTESTS){
+            if(scores.length > 0 && testcount <=MAXTESTS){
                 ta.append(scoreStr);
                 ta.append("\n");
             }
