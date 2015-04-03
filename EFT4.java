@@ -1,6 +1,5 @@
 package eft3;
 
-
 import java.awt.*;
 import java.awt.event.*;
 import java.applet.Applet;
@@ -15,6 +14,7 @@ import javax.swing.WindowConstants;
 @SuppressWarnings("serial")
 public class EFT4 extends Applet
         implements ActionListener, MouseListener, MouseMotionListener {
+
     long tStart = System.currentTimeMillis();
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -22,8 +22,6 @@ public class EFT4 extends Applet
     //
     ////////////////////////////////////////////////////////////////////////////
 
-    
-    
     private class Segment {
 
         private final int ARC = 0;
@@ -90,13 +88,11 @@ public class EFT4 extends Applet
         }
     }
 
-    
     ////////////////////////////////////////////////////////////////////////////
     //
     // class EFT
     //
     ////////////////////////////////////////////////////////////////////////////
-
     public static void main(String[] args) {
         EFT4 g = new EFT4();
         JFrame myFrame = new JFrame("EFT Test (with novelty perception)");
@@ -106,7 +102,6 @@ public class EFT4 extends Applet
         myFrame.add(g);
 
         myFrame.pack();
-        
 
         scoresFrame = new JFrame("SCORE TABLE");
         scoresFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -114,15 +109,15 @@ public class EFT4 extends Applet
         ta = new JTextArea();
         scoresFrame.add(ta);
         scoresFrame.pack();
-        
+
         scoresFrame.setVisible(true);
         myFrame.setVisible(true);
         myFrame.toFront();
     }
-    
+
     private static JFrame scoresFrame;
-    private static JTextArea ta;        
-            
+    private static JTextArea ta;
+
     private final int TOP = 100;
     private final int LEFT = 5;
     private final int HEIGHT = 90;
@@ -182,6 +177,7 @@ public class EFT4 extends Applet
     private Random random = new Random();
     public int clickCounter;
     public String scoreStr;
+
     ////////////////////////////////////////////////////////////////////////////
     private void populateFigures() {
         figTriStab.addSegment(new Segment(FIGURE_SIZE / 2, 0, 0, FIGURE_SIZE));
@@ -245,23 +241,21 @@ public class EFT4 extends Applet
         zoneX = random.nextInt(WIDTH - (TARGET_WIDTH + FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
         zoneY = random.nextInt(HEIGHT - FIGURE_SIZE) + TOP;
 
-		// Pick the figure to be found.
+        // Pick the figure to be found.
         //wally = random.nextInt(FIGMAX);
         //Pick 4 figure types to be found
         long tNow = 0;
         for (int i = 0; i < 4; i++) {
             tNow = System.currentTimeMillis();
-            generator = new Random((tStart- tNow)*(i+1));         
-
+            generator = new Random((tStart - tNow) * (i + 1));
             search4[i] = randomGenerator(FIGMAX);
-            System.out.println((tNow - tStart) + i + "figure type:" +search4[i]);
-                
+
         }
 
         // Remember the starting time.
         startTime = System.currentTimeMillis();
     }
-    
+
     private Random generator = new Random(System.currentTimeMillis());
 
     int randomGenerator(int range) {
@@ -269,7 +263,6 @@ public class EFT4 extends Applet
     }
 
     ////////////////////////////////////////////////////////////////////////////
-
     public void init() {
         clickCounter = 0;
         populateFigures();
@@ -337,39 +330,31 @@ public class EFT4 extends Applet
             for (int i = 0; i < testsValue; i++) {
                 total += scores[i];
             }
-            
+
             g.drawString("Average time (ms): " + Long.toString(total / testsValue), 110, 120);
             g.drawString("Click count per test: " + Integer.toString(clickCounter), 110, 138);
-            scoreStr = "Time(ms): " + Long.toString(total / testsValue) +"    Clicks: "+ Integer.toString(clickCounter);
-            if(scores.length > 0 && testcount <=MAXTESTS){
+            scoreStr = "Test nr: "+Integer.toString(testcount)
+                    +",  Time(ms): " + Long.toString(total / testsValue) 
+                    +",  Clicks: " + Integer.toString(clickCounter);
+            if (scores.length > 0 && testcount <= MAXTESTS && clickCounter!=0) {
                 ta.append(scoreStr);
-                ta.append("\n");
+                ta.append(";\n");
+                testcount++;
             }
-            testcount++;
+            //reinit the number of clicks
+            clickCounter = 0;
         } else if (state == RUNNING) {
-			
+            //SEARCH BOX
+            displayFigure(g, search4[0], s4X, s4Y);
+            displayFigure(g, search4[1], s4X + FIGURE_SIZE, s4Y);
+            displayFigure(g, search4[2], s4X, s4Y + FIGURE_SIZE);
+            displayFigure(g, search4[3], s4X + FIGURE_SIZE, s4Y + FIGURE_SIZE);
 
-            
-            for (int i = 0; i < 4; i++) {
-                x = s4X + (i % 2) * 25;
-                if (i > 1) {
-                    y = s4Y + 25;
-                } else {
-                    y = s4Y;
-                }
-                displayFigure(g, search4[i], x, y);
-
-            }
-            for (int i = 0; i < 4; i++) {
-                x = zoneX + (i % 2) * 25;
-                if (i > 1) {
-                    y = zoneY + 25;
-                } else {
-                    y = zoneY;
-                }
-                
-                displayFigure(g, search4[i], x , y);
-            }
+            //
+            displayFigure(g, search4[0], zoneX, zoneY);
+            displayFigure(g, search4[1], zoneX + FIGURE_SIZE, zoneY);
+            displayFigure(g, search4[2], zoneX, zoneY + FIGURE_SIZE);
+            displayFigure(g, search4[3], zoneX + FIGURE_SIZE, zoneY + FIGURE_SIZE);
             // Pick and place the correct number of noise figures.
 
             int count = 0;
@@ -385,11 +370,11 @@ public class EFT4 extends Applet
                 int yn = random.nextInt(HEIGHT - FIGURE_SIZE) + TOP;
                 displayFigure(g, figCode, xn, yn);
                 figCode = randomGenerator(FIGMAX);
-                displayFigure(g, figCode, xn+FIGURE_SIZE, yn);
+                displayFigure(g, figCode, xn + FIGURE_SIZE, yn);
                 figCode = randomGenerator(FIGMAX);
-                displayFigure(g, figCode, xn, yn+FIGURE_SIZE);
+                displayFigure(g, figCode, xn, yn + FIGURE_SIZE);
                 figCode = randomGenerator(FIGMAX);
-                displayFigure(g, figCode, xn+FIGURE_SIZE, yn+FIGURE_SIZE);
+                displayFigure(g, figCode, xn + FIGURE_SIZE, yn + FIGURE_SIZE);
                 figCode = randomGenerator(FIGMAX);
                 count++;
             }
@@ -415,6 +400,7 @@ public class EFT4 extends Applet
             testsCount = 0;
             state = RUNNING;
             placeFigure();
+            
         } else if (e.getSource() == restart) {
             go.setEnabled(true);
             restart.setEnabled(false);
@@ -430,7 +416,7 @@ public class EFT4 extends Applet
         int x = e.getX();
         int y = e.getY();
 
-        if (state == RUNNING && x > zoneX && x < zoneX + FIGURE_SIZE*2 && y > zoneY && y < zoneY + FIGURE_SIZE*2) {
+        if (state == RUNNING && x > zoneX && x < zoneX + FIGURE_SIZE * 2 && y > zoneY && y < zoneY + FIGURE_SIZE * 2) {
             scores[testsCount++] = System.currentTimeMillis() - startTime;
             if (testsCount == testsValue) {
                 state = HASRUN;
@@ -438,7 +424,7 @@ public class EFT4 extends Applet
             placeFigure();
             repaint();
         }
-        clickCounter++;
+        if (state == RUNNING)clickCounter++;
     }
 
     ////////////////////////////////////////////////////////////////////////////
