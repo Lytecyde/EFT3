@@ -21,6 +21,7 @@ public class EFT4 extends Applet
     // class Segment
     //
     ////////////////////////////////////////////////////////////////////////////
+    
 
     private class Segment {
 
@@ -175,7 +176,7 @@ public class EFT4 extends Applet
     private Figure figCircle = new Figure();
 
     private Random random = new Random();
-    public int clickCounter;
+    private int clickCounter;
     public String scoreStr;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -238,16 +239,17 @@ public class EFT4 extends Applet
         random.setSeed(System.currentTimeMillis());
 
         // Pick the zone.
-        zoneX = random.nextInt(WIDTH - (TARGET_WIDTH + FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
-        zoneY = random.nextInt(HEIGHT - FIGURE_SIZE) + TOP;
+        zoneX = random.nextInt(WIDTH - (TARGET_WIDTH + 2*FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
+        
+        zoneY = random.nextInt(HEIGHT - 2*FIGURE_SIZE) + TOP;
 
         // Pick the figure to be found.
         //wally = random.nextInt(FIGMAX);
         //Pick 4 figure types to be found
-        long tNow = 0;
+        //long tNow = 0;
         for (int i = 0; i < 4; i++) {
-            tNow = System.currentTimeMillis();
-            generator = new Random((tStart - tNow) * (i + 1));
+            //tNow = System.currentTimeMillis();
+            //generator = new Random((tStart - tNow) * (i + 1));
             search4[i] = randomGenerator(FIGMAX);
 
         }
@@ -307,13 +309,12 @@ public class EFT4 extends Applet
 
     ////////////////////////////////////////////////////////////////////////////
     public void paint(Graphics g) {
-        int x = 0;
-        int y = 0;
+        
         g.setColor(Color.black);
-        g.drawLine(LEFT, TOP, LEFT + WIDTH, TOP);
-        g.drawLine(LEFT, TOP + HEIGHT, LEFT + WIDTH, TOP + HEIGHT);
-        g.drawLine(LEFT, TOP, LEFT, TOP + HEIGHT);
-        g.drawLine(LEFT + TARGET_WIDTH, TOP, LEFT + TARGET_WIDTH, TOP + HEIGHT);
+        g.drawLine(LEFT, TOP, LEFT + WIDTH, TOP);//top
+        g.drawLine(LEFT, TOP + HEIGHT, LEFT + WIDTH, TOP + HEIGHT);//left
+        g.drawLine(LEFT, TOP, LEFT, TOP + HEIGHT );//right
+        g.drawLine(LEFT + TARGET_WIDTH, TOP, LEFT + TARGET_WIDTH, TOP + HEIGHT);//target box 
         g.drawLine(LEFT + WIDTH, TOP, LEFT + WIDTH, TOP + HEIGHT);
 
         if (state == NOTRUN) {
@@ -330,13 +331,18 @@ public class EFT4 extends Applet
             for (int i = 0; i < testsValue; i++) {
                 total += scores[i];
             }
-
+                
             g.drawString("Average time (ms): " + Long.toString(total / testsValue), 110, 120);
             g.drawString("Click count per test: " + Integer.toString(clickCounter), 110, 138);
-            scoreStr = "Test nr: "+Integer.toString(testcount)
-                    +",  Time(ms): " + Long.toString(total / testsValue) 
-                    +",  Clicks: " + Integer.toString(clickCounter);
+            
             if (scores.length > 0 && testcount <= MAXTESTS && clickCounter!=0) {
+                final int IDEAL_TIME = 300*testsValue;
+                int pointScore = ((int)(total / testsValue) - IDEAL_TIME)*(clickCounter - testsValue + 1); 
+                scoreStr = "Test nr: EFT"+Integer.toString(testcount)
+                    +"T" + Integer.toString(testsValue) + "N" + Integer.toString(noiseValue)
+                    +",  Time(ms): " + Long.toString(total / testsValue) 
+                    +",  Clicks: " + Integer.toString(clickCounter)
+                    +", Points: " + Integer.toString(pointScore);
                 ta.append(scoreStr);
                 ta.append(";\n");
                 testcount++;
@@ -344,30 +350,30 @@ public class EFT4 extends Applet
             //reinit the number of clicks
             clickCounter = 0;
         } else if (state == RUNNING) {
-            //SEARCH BOX
+            //TARGET BOX
             displayFigure(g, search4[0], s4X, s4Y);
             displayFigure(g, search4[1], s4X + FIGURE_SIZE, s4Y);
             displayFigure(g, search4[2], s4X, s4Y + FIGURE_SIZE);
             displayFigure(g, search4[3], s4X + FIGURE_SIZE, s4Y + FIGURE_SIZE);
 
-            //
-            displayFigure(g, search4[0], zoneX, zoneY);
-            displayFigure(g, search4[1], zoneX + FIGURE_SIZE, zoneY);
+            //WALLY the composite FIGURE
+            displayFigure(g, search4[0], zoneX, zoneY );
+            displayFigure(g, search4[1], zoneX + FIGURE_SIZE , zoneY);
             displayFigure(g, search4[2], zoneX, zoneY + FIGURE_SIZE);
-            displayFigure(g, search4[3], zoneX + FIGURE_SIZE, zoneY + FIGURE_SIZE);
+            displayFigure(g, search4[3], zoneX + FIGURE_SIZE , zoneY + FIGURE_SIZE);
             // Pick and place the correct number of noise figures.
 
             int count = 0;
 
             while (count < noiseValue) {
-                int figCode;
-                //TODO remove this if safely, redundant
-                if ((figCode = random.nextInt(FIGMAX)) == wally) {
-                    continue;
-                }
+                int figCode = random.nextInt(FIGMAX);
+                //TODO remove this safely, check for new repeat figures
+//                if ((figCode = random.nextInt(FIGMAX)) == wally) {
+//                    continue;
+//                }
 
-                int xn = random.nextInt(WIDTH - (TARGET_WIDTH + FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
-                int yn = random.nextInt(HEIGHT - FIGURE_SIZE) + TOP;
+                int xn = random.nextInt(WIDTH - (TARGET_WIDTH + 2*FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
+                int yn = random.nextInt(HEIGHT - 2*FIGURE_SIZE) + TOP;
                 displayFigure(g, figCode, xn, yn);
                 figCode = randomGenerator(FIGMAX);
                 displayFigure(g, figCode, xn + FIGURE_SIZE, yn);
@@ -415,7 +421,8 @@ public class EFT4 extends Applet
     public void mousePressed(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
-
+        
+        if (state == RUNNING)clickCounter++;
         if (state == RUNNING && x > zoneX && x < zoneX + FIGURE_SIZE * 2 && y > zoneY && y < zoneY + FIGURE_SIZE * 2) {
             scores[testsCount++] = System.currentTimeMillis() - startTime;
             if (testsCount == testsValue) {
@@ -423,8 +430,9 @@ public class EFT4 extends Applet
             }
             placeFigure();
             repaint();
+            
         }
-        if (state == RUNNING)clickCounter++;
+        
     }
 
     ////////////////////////////////////////////////////////////////////////////
