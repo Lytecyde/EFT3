@@ -21,7 +21,6 @@ public class EFT4 extends Applet
     // class Segment
     //
     ////////////////////////////////////////////////////////////////////////////
-    
 
     private class Segment {
 
@@ -126,8 +125,7 @@ public class EFT4 extends Applet
     private final int TARGET_WIDTH = 90;
     private final int FIGURE_SIZE = 25;//was 50
     private final int s4X = (LEFT + ((TARGET_WIDTH - FIGURE_SIZE) / 2));
-    ;
-        private final int s4Y = (TOP + ((HEIGHT - FIGURE_SIZE) / 2));
+    private final int s4Y = (TOP + ((HEIGHT - FIGURE_SIZE) / 2));
     private final int FIGTRISTAB = 0;
     private final int FIGTRIUNSTAB = 1;
     private final int FIGCROSS = 2;
@@ -234,22 +232,20 @@ public class EFT4 extends Applet
     ////////////////////////////////////////////////////////////////////////////
     private void placeFigure() {
         // Re-seed the random number generator for each run.
-        Random[] r4 = {new Random(), new Random(), new Random(), new Random()
-        };
+
         random.setSeed(System.currentTimeMillis());
 
         // Pick the zone.
-        zoneX = random.nextInt(WIDTH - (TARGET_WIDTH + 2*FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
-        
-        zoneY = random.nextInt(HEIGHT - 2*FIGURE_SIZE) + TOP;
+        zoneX = random.nextInt(WIDTH - (TARGET_WIDTH + 2 * FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
+
+        zoneY = random.nextInt(HEIGHT - 2 * FIGURE_SIZE) + TOP;
 
         // Pick the figure to be found.
         //wally = random.nextInt(FIGMAX);
-        //Pick 4 figure types to be found
+        //Pick 4 figure types to be found --"The Wally"
         //long tNow = 0;
         for (int i = 0; i < 4; i++) {
-            //tNow = System.currentTimeMillis();
-            //generator = new Random((tStart - tNow) * (i + 1));
+
             search4[i] = randomGenerator(FIGMAX);
 
         }
@@ -309,11 +305,11 @@ public class EFT4 extends Applet
 
     ////////////////////////////////////////////////////////////////////////////
     public void paint(Graphics g) {
-        
+
         g.setColor(Color.black);
         g.drawLine(LEFT, TOP, LEFT + WIDTH, TOP);//top
         g.drawLine(LEFT, TOP + HEIGHT, LEFT + WIDTH, TOP + HEIGHT);//left
-        g.drawLine(LEFT, TOP, LEFT, TOP + HEIGHT );//right
+        g.drawLine(LEFT, TOP, LEFT, TOP + HEIGHT);//right
         g.drawLine(LEFT + TARGET_WIDTH, TOP, LEFT + TARGET_WIDTH, TOP + HEIGHT);//target box 
         g.drawLine(LEFT + WIDTH, TOP, LEFT + WIDTH, TOP + HEIGHT);
 
@@ -331,18 +327,18 @@ public class EFT4 extends Applet
             for (int i = 0; i < testsValue; i++) {
                 total += scores[i];
             }
-                
+
             g.drawString("Average time (ms): " + Long.toString(total / testsValue), 110, 120);
             g.drawString("Click count per test: " + Integer.toString(clickCounter), 110, 138);
-            
-            if (scores.length > 0 && testcount <= MAXTESTS && clickCounter!=0) {
-                final int IDEAL_TIME = 300*testsValue;
-                int pointScore = ((int)(total / testsValue) - IDEAL_TIME)*(clickCounter - testsValue + 1); 
-                scoreStr = "Test nr: EFT"+Integer.toString(testcount)
-                    +"T" + Integer.toString(testsValue) + "N" + Integer.toString(noiseValue)
-                    +",  Time(ms): " + Long.toString(total / testsValue) 
-                    +",  Clicks: " + Integer.toString(clickCounter)
-                    +", Points: " + Integer.toString(pointScore);
+
+            if (scores.length > 0 && testcount <= MAXTESTS && clickCounter != 0) {
+                final int IDEAL_TIME = 300 * testsValue;
+                int pointScore = ((int) (total / testsValue) - IDEAL_TIME) * (clickCounter - testsValue + 1);
+                scoreStr = "Test nr: EFT" + Integer.toString(testcount)
+                        + "T" + Integer.toString(testsValue) + "N" + Integer.toString(noiseValue)
+                        + ",  Time(ms): " + Long.toString(total / testsValue)
+                        + ",  Clicks: " + Integer.toString(clickCounter)
+                        + ", Points: " + Integer.toString(pointScore);
                 ta.append(scoreStr);
                 ta.append(";\n");
                 testcount++;
@@ -357,31 +353,44 @@ public class EFT4 extends Applet
             displayFigure(g, search4[3], s4X + FIGURE_SIZE, s4Y + FIGURE_SIZE);
 
             //WALLY the composite FIGURE
-            displayFigure(g, search4[0], zoneX, zoneY );
-            displayFigure(g, search4[1], zoneX + FIGURE_SIZE , zoneY);
+            displayFigure(g, search4[0], zoneX, zoneY);
+            displayFigure(g, search4[1], zoneX + FIGURE_SIZE, zoneY);
             displayFigure(g, search4[2], zoneX, zoneY + FIGURE_SIZE);
-            displayFigure(g, search4[3], zoneX + FIGURE_SIZE , zoneY + FIGURE_SIZE);
+            displayFigure(g, search4[3], zoneX + FIGURE_SIZE, zoneY + FIGURE_SIZE);
             // Pick and place the correct number of noise figures.
 
             int count = 0;
 
             while (count < noiseValue) {
-                int figCode = random.nextInt(FIGMAX);
-                //TODO remove this safely, check for new repeat figures
-//                if ((figCode = random.nextInt(FIGMAX)) == wally) {
+                Random[] figCodeRandomiser;
+                figCodeRandomiser = new Random[4];
+                int[] figCode = new int[4];
+                for (int i = 0; i < 4; i++) {
+                    figCode[i] = randomGenerator(FIGMAX);
+                }
+
+                
+//                if ((figCode = random.nextInt(FIGMAX))==wally) {
 //                    continue;
 //                }
+                if ((figCode[0] == search4[0])
+                    && (figCode[1] == search4[1])
+                    && (figCode[2] == search4[2])
+                    && (figCode[3] == search4[3])) {
+                    continue;
+                }
 
-                int xn = random.nextInt(WIDTH - (TARGET_WIDTH + 2*FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
-                int yn = random.nextInt(HEIGHT - 2*FIGURE_SIZE) + TOP;
-                displayFigure(g, figCode, xn, yn);
-                figCode = randomGenerator(FIGMAX);
-                displayFigure(g, figCode, xn + FIGURE_SIZE, yn);
-                figCode = randomGenerator(FIGMAX);
-                displayFigure(g, figCode, xn, yn + FIGURE_SIZE);
-                figCode = randomGenerator(FIGMAX);
-                displayFigure(g, figCode, xn + FIGURE_SIZE, yn + FIGURE_SIZE);
-                figCode = randomGenerator(FIGMAX);
+                int xn = random.nextInt(WIDTH - (TARGET_WIDTH + 2 * FIGURE_SIZE)) + LEFT + TARGET_WIDTH;
+                int yn = random.nextInt(HEIGHT - 2 * FIGURE_SIZE) + TOP;
+                
+                displayFigure(g, figCode[0], xn, yn);
+                
+                displayFigure(g, figCode[1], xn + FIGURE_SIZE, yn);
+               
+                displayFigure(g, figCode[2], xn, yn + FIGURE_SIZE);
+                
+                displayFigure(g, figCode[3], xn + FIGURE_SIZE, yn + FIGURE_SIZE);
+
                 count++;
             }
         }
@@ -406,7 +415,7 @@ public class EFT4 extends Applet
             testsCount = 0;
             state = RUNNING;
             placeFigure();
-            
+
         } else if (e.getSource() == restart) {
             go.setEnabled(true);
             restart.setEnabled(false);
@@ -421,8 +430,10 @@ public class EFT4 extends Applet
     public void mousePressed(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
-        
-        if (state == RUNNING)clickCounter++;
+
+        if (state == RUNNING) {
+            clickCounter++;
+        }
         if (state == RUNNING && x > zoneX && x < zoneX + FIGURE_SIZE * 2 && y > zoneY && y < zoneY + FIGURE_SIZE * 2) {
             scores[testsCount++] = System.currentTimeMillis() - startTime;
             if (testsCount == testsValue) {
@@ -430,9 +441,9 @@ public class EFT4 extends Applet
             }
             placeFigure();
             repaint();
-            
+
         }
-        
+
     }
 
     ////////////////////////////////////////////////////////////////////////////
