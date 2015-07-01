@@ -353,7 +353,8 @@ public class EFT extends Applet
 
         if (state == NOTRUN) {
             if (!mode.equals("minimal")) {
-                g.drawString("Vali mitu segavat figuuri võtta ning mitu testi teha.", 110, 120);
+                //removed because the number of tests is limited to 10 in code
+                //g.drawString("Vali mitu segavat figuuri võtta ning mitu testi teha.", 110, 120);
             }
 
             g.drawString("Otsitav figuur on nähtav kastis mis vasakul.", 110, 140);
